@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sania Tanweer — Portfolio</title>
+  <meta name="description" content="Portfolio of Sania Tanweer — B.Tech CSE student, developer, and tech enthusiast." />
+  <link rel="stylesheet" href="style.css" />
+  <!-- GSAP + Plugins -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+</head>
+<body>
+
+<!-- ── Custom Cursor ── -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ── Floating Particles Canvas ── -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ── Navbar ── -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="nav-logo">ST.</a>
+    <div class="nav-links" id="nav-links">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#certifications">Certifications</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero" id="hero">
+  <div class="container hero-content">
+    <span class="hero-badge" data-animate="fade-up">✦ Welcome to my portfolio</span>
+    <h1 class="hero-title">
+      <span class="line"><span class="line-inner">Hi, I'm</span></span>
+      <span class="line"><span class="line-inner highlight">Sania Tanweer</span></span>
+    </h1>
+    <p class="hero-desc">Third-year B.Tech CSE student at SRMIST passionate about Data Structures, Analytics, Web Development, and AI/ML.</p>
+    <div class="hero-buttons">
+      <a href="#projects" class="btn btn-primary magnetic">View Projects ↓</a>
+      <a href="#contact" class="btn btn-outline magnetic">Get in Touch</a>
+    </div>
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<section id="about">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">About Me</span>
+      <h2 class="split-text">Who I Am</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-image tilt-card">
+        <div class="placeholder-avatar">👩‍💻</div>
+        <div class="image-glow"></div>
+      </div>
+      <div class="about-text">
+        <h3>Student. Developer. Learner.</h3>
+        <p>I am a third-year B.Tech student at SRM Institute of Science and Technology with strong interests in Data Structures & Algorithms, Data Analytics, Excel, Power BI, Web Development, and AI/ML. I enjoy analyzing data, building interactive dashboards, and developing intelligent systems to solve real-world problems.</p>
+        <p>Passionate about continuous learning, I strive for academic excellence and technical growth. Beyond academics, I enjoy designing, drawing, coffee, and spending time in nature.</p>
+        <div class="about-stats">
+          <div class="stat">
+            <div class="stat-number counter" data-target="9.77">0</div>
+            <div class="stat-label">CGPA</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">CSE</div>
+            <div class="stat-label">Core Branch</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number counter" data-target="3">0</div>
+            <div class="stat-label">Projects Built</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Skills ── -->
+<section id="skills" class="skills-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Tech Stack</span>
+      <h2 class="split-text">Skills &amp; Technologies</h2>
+      <p>Technologies and tools I work with</p>
+    </div>
+    <div class="skills-categories">
+      <div class="skills-category">
+        <h3 class="skills-category-title">Programming Languages</h3>
+        <div class="skills-grid">
+          <div class="skill-card magnetic"><div class="skill-icon">🔷</div><div class="skill-name">C / C++</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">🐍</div><div class="skill-name">Python</div><div class="card-shine"></div></div>
+        </div>
+      </div>
+
+      <div class="skills-category">
+        <h3 class="skills-category-title">Technical Skills</h3>
+        <div class="skills-grid">
+          <div class="skill-card magnetic"><div class="skill-icon">📊</div><div class="skill-name">Data Structures &amp; Algorithms</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">🧩</div><div class="skill-name">OOPs</div><div class="card-shine"></div></div>
+        </div>
+      </div>
+
+      <div class="skills-category">
+        <h3 class="skills-category-title">Languages &amp; Frameworks</h3>
+        <div class="skills-grid">
+          <div class="skill-card magnetic"><div class="skill-icon">🌐</div><div class="skill-name">HTML / CSS</div><div class="card-shine"></div></div>
+        </div>
+      </div>
+
+      <div class="skills-category">
+        <h3 class="skills-category-title">Tools &amp; Technologies</h3>
+        <div class="skills-grid">
+          <div class="skill-card magnetic"><div class="skill-icon">🗄️</div><div class="skill-name">MySQL</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">📈</div><div class="skill-name">Power BI</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">🎨</div><div class="skill-name">Figma</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">📊</div><div class="skill-name">Advanced Excel</div><div class="card-shine"></div></div>
+          <div class="skill-card magnetic"><div class="skill-icon">🐙</div><div class="skill-name">Git</div><div class="card-shine"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Marquee ── -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span>Developer ✦ Problem Solver ✦ Creative Thinker ✦ Team Player ✦ Quick Learner ✦ Open Source ✦ Developer ✦ Problem Solver ✦ Creative Thinker ✦ Team Player ✦ Quick Learner ✦ Open Source ✦</span>
+  </div>
+</div>
+
+<!-- ── Experience ── -->
+<section id="experience">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Education</span>
+      <h2 class="split-text">My Academic Journey</h2>
+      <p>My educational background</p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card tilt-card">
+          <div class="timeline-date">2023 — 2027</div>
+          <h4>B.Tech in Computer Science &amp; Engineering</h4>
+          <div class="company">SRM Institute of Science and Technology, Kattankulathur</div>
+          <p>Current CGPA: 9.77/10</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card tilt-card">
+          <div class="timeline-date">2021 — 2023</div>
+          <h4>Class XII (CBSE) - PCM</h4>
+          <div class="company">Shivam Convent, Patna</div>
+          <p>Percentage: 88.2%</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card tilt-card">
+          <div class="timeline-date">Up to 2021</div>
+          <h4>Class X (ICSE)</h4>
+          <div class="company">St Joseph's Convent High School, Patna</div>
+          <p>Percentage: 90.2%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Projects ── -->
+<section id="projects" class="projects-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Projects</span>
+      <h2 class="split-text">Things I've Built</h2>
+      <p>A showcase of projects that reflect my skills and creativity</p>
+    </div>
+    <div class="projects-grid">
+      <a href="https://github.com/saniatanweer29/Employee-Salary-Prediction-using-ML-Algorithms" target="_blank" class="project-card tilt-card">
+        <div class="project-thumb">🤖</div>
+        <div class="project-info">
+          <h4>Employee Salary Prediction System</h4>
+          <p>Designed and implemented a machine learning model to predict employee salaries using demographic and professional features. Built a complete ML pipeline with data preprocessing, feature engineering, and model comparison.</p>
+          <div class="project-tags">
+            <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span><span class="tag">XGBoost</span>
+          </div>
+        </div>
+      </a>
+      <a href="https://github.com/saniatanweer29/Campus-Compass" target="_blank" class="project-card tilt-card">
+        <div class="project-thumb">🧭</div>
+        <div class="project-info">
+          <h4>Campus Compass</h4>
+          <p>Developed a cloud-native student management system using Node.js with a fully automated DevOps pipeline. Implemented IaC, deployed containerized services via Docker and Kubernetes (K3s), and built CI/CD pipelines.</p>
+          <div class="project-tags">
+            <span class="tag">Node.js</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Terraform</span>
+          </div>
+        </div>
+      </a>
+      <a href="https://github.com/saniatanweer29/EchoSaath" target="_blank" class="project-card tilt-card">
+        <div class="project-thumb">🚨</div>
+        <div class="project-info">
+          <h4>EchoSaath</h4>
+          <p>A native iOS application developed to enhance personal safety for women through rapid emergency response features. Integrates real-time location services and instant alert mechanisms.</p>
+          <div class="project-tags">
+            <span class="tag">Swift</span><span class="tag">SwiftUI</span><span class="tag">CoreLocation</span><span class="tag">iOS</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Certifications ── -->
+<section id="certifications">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Certifications</span>
+      <h2 class="split-text">Credentials &amp; Achievements</h2>
+      <p>Certifications that validate my continuous learning</p>
+    </div>
+    <div class="certs-grid">
+      <div class="cert-card tilt-card">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-info">
+          <h4>GitHub Copilot Certification</h4>
+          <div class="cert-issuer">Microsoft Learn</div>
+          <div class="cert-date">Mar 2026 - Mar 2028</div>
+        </div>
+      </div>
+      <div class="cert-card tilt-card">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-info">
+          <h4>Oracle Cloud Infrastructure 2024 Foundations Associate</h4>
+          <div class="cert-issuer">Oracle University</div>
+          <div class="cert-date">Jan 2025 - Jan 2027</div>
+        </div>
+      </div>
+      <div class="cert-card tilt-card">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-info">
+          <h4>Oracle Fusion Cloud ERP Process Essentials</h4>
+          <div class="cert-issuer">Oracle University</div>
+          <div class="cert-date">Dec 2025</div>
+        </div>
+      </div>
+      <div class="cert-card tilt-card">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-info">
+          <h4>Introduction to Machine Learning</h4>
+          <div class="cert-issuer">NPTEL (IIT Kharagpur)</div>
+          <div class="cert-date">Sept 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ── -->
+<section id="contact" class="contact-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Contact</span>
+      <h2 class="split-text">Let's Connect</h2>
+      <p>Have a project in mind or just want to say hello? Feel free to reach out!</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Get in Touch</h3>
+        <p>I'm always open to discussing new projects, creative ideas, or opportunities to be part of something amazing.</p>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">📧</div>
+          <span>st8132@srmist.edu.in</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">📍</div>
+          <span>Kattankulathur, Tamil Nadu</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-icon">🔗</div>
+          <span>linkedin.com/in/saniatanweer</span>
+        </div>
+      </div>
+      <form class="contact-form" id="contact-form">
+        <div class="form-group">
+          <input type="text" placeholder="Your Name" required id="form-name" />
+        </div>
+        <div class="form-group">
+          <input type="email" placeholder="Your Email" required id="form-email" />
+        </div>
+        <div class="form-group">
+          <textarea placeholder="Your Message" required id="form-message"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary magnetic" id="form-submit">Send Message →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <div class="social-links">
+      <a href="#" aria-label="GitHub" class="magnetic">🐙</a>
+      <a href="#" aria-label="LinkedIn" class="magnetic">💼</a>
+      <a href="#" aria-label="Twitter" class="magnetic">🐦</a>
+      <a href="#" aria-label="Email" class="magnetic">📧</a>
+    </div>
+    <p>&copy; 2026 Sania Tanweer. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
