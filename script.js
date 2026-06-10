@@ -35,65 +35,17 @@ if (typeof lenis !== 'undefined') lenis.scrollTo(0, { immediate: true });
 document.body.style.overflow = 'hidden';
 const preloader = document.getElementById('preloader');
 const counterEl = document.getElementById('loader-counter');
-const sCanvas = document.getElementById('smoke-canvas');
-const sCtx = sCanvas.getContext('2d');
+const footprintsContainer = document.getElementById('footprints-container');
 
-function resizeSmoke() {
-  sCanvas.width = window.innerWidth;
-  sCanvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeSmoke);
-resizeSmoke();
+const footprintSVG = `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="20" cy="24" rx="10" ry="8" fill="currentColor"/>
+  <ellipse cx="12" cy="14" rx="4" ry="5" fill="currentColor" transform="rotate(-15 12 14)"/>
+  <ellipse cx="20" cy="10" rx="4" ry="5" fill="currentColor"/>
+  <ellipse cx="28" cy="14" rx="4" ry="5" fill="currentColor" transform="rotate(15 28 14)"/>
+</svg>`;
 
-const smokeParticles = [];
-for (let i = 0; i < 45; i++) {
-  smokeParticles.push({
-    x: window.innerWidth * 0.5 + (Math.random() - 0.5) * window.innerWidth * 0.8,
-    y: window.innerHeight + Math.random() * 300,
-    r: 60 + Math.random() * 120,
-    vx: (Math.random() - 0.5) * 1.5,
-    vy: -1.5 - Math.random() * 3,
-    alpha: 0,
-    targetAlpha: 0.03 + Math.random() * 0.08,
-    life: 0,
-    maxLife: 200 + Math.random() * 200
-  });
-}
-
-let smokeRunning = true;
-function drawPreloaderSmoke() {
-  if (!smokeRunning) return;
-  sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
-  
-  smokeParticles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.r += 0.3; // Expand slowly
-    p.life++;
-    
-    if (p.life < 50) p.alpha += (p.targetAlpha - p.alpha) * 0.05;
-    if (p.life > p.maxLife - 50) p.alpha *= 0.95;
-    
-    if (p.life > p.maxLife || p.y + p.r < 0) {
-      p.y = sCanvas.height + 100;
-      p.x = window.innerWidth * 0.5 + (Math.random() - 0.5) * window.innerWidth * 0.8;
-      p.life = 0;
-      p.r = 60 + Math.random() * 120;
-      p.alpha = 0;
-    }
-    
-    const grad = sCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-    grad.addColorStop(0, `rgba(10,10,10,${p.alpha})`);
-    grad.addColorStop(1, `rgba(10,10,10,0)`);
-    sCtx.fillStyle = grad;
-    sCtx.beginPath();
-    sCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    sCtx.fill();
-  });
-  
-  requestAnimationFrame(drawPreloaderSmoke);
-}
-drawPreloaderSmoke();
+let lastFootprintV = 0;
+let isLeftPaw = true;
 
 // Counter Animation
 let loaded = { v: 1 };
@@ -102,7 +54,26 @@ gsap.to(loaded, {
   duration: 3.5, // Total loading time
   ease: "power2.inOut",
   onUpdate: () => {
-    counterEl.textContent = Math.floor(loaded.v) + '%';
+    let currentV = Math.floor(loaded.v);
+    counterEl.textContent = currentV + '%';
+    
+    // Spawn footprint every 5%
+    if (currentV - lastFootprintV >= 5) {
+      lastFootprintV = currentV;
+      
+      const fp = document.createElement('div');
+      fp.className = 'footprint-svg';
+      
+      const rotation = isLeftPaw ? 'rotate(80deg)' : 'rotate(100deg)';
+      fp.innerHTML = footprintSVG.replace('<svg', `<svg style="width:100%; height:100%; transform: ${rotation}"`);
+      
+      const yOffset = isLeftPaw ? -40 : 40;
+      fp.style.left = currentV + '%';
+      fp.style.top = `calc(50% + ${yOffset}px)`;
+      
+      footprintsContainer.appendChild(fp);
+      isLeftPaw = !isLeftPaw;
+    }
   },
   onComplete: () => {
     if (window.playHeroEntrance) window.playHeroEntrance();
@@ -114,7 +85,6 @@ gsap.to(loaded, {
       onComplete: () => {
         preloader.style.display = 'none';
         document.body.style.overflow = '';
-        smokeRunning = false;
         ScrollTrigger.refresh();
       }
     });
@@ -177,7 +147,7 @@ function drawRain() {
   }
 
   rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
-  rCtx.strokeStyle = 'rgba(0,0,0,0.12)';
+  rCtx.strokeStyle = 'rgba(26,58,107,0.22)';  /* col 2 — dark blue */
   rCtx.lineWidth = 1;
   rCtx.beginPath();
   
@@ -206,7 +176,7 @@ function drawRain() {
   rCtx.stroke();
 
   if (splashes.length > 0) {
-    rCtx.fillStyle = 'rgba(0,0,0,0.18)';
+    rCtx.fillStyle = 'rgba(26,58,107,0.28)';  /* col 2 — dark blue */
     for(let i = splashes.length - 1; i >= 0; i--) {
       let s = splashes[i];
       s.x += s.vx;
@@ -270,35 +240,28 @@ document.querySelectorAll('.work-card-img').forEach(card => {
 // ══════════════════════════════════════
 //  CURSOR
 // ══════════════════════════════════════
-const dot  = document.getElementById('cursor-dot');
-const ring = document.getElementById('cursor-ring');
+const cursorPaw = document.getElementById('cursor-paw');
 let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-let rx = mx, ry = my;
 
 document.addEventListener('mousemove', e => {
   mx = e.clientX; my = e.clientY;
-  dot.style.left = mx + 'px';
-  dot.style.top  = my + 'px';
+  cursorPaw.style.left = mx + 'px';
+  cursorPaw.style.top  = my + 'px';
 });
 
-(function tickRing() {
-  rx += (mx - rx) * 0.09;
-  ry += (my - ry) * 0.09;
-  ring.style.left = rx + 'px';
-  ring.style.top  = ry + 'px';
-  requestAnimationFrame(tickRing);
-})();
+// Click for claws
+document.addEventListener('mousedown', () => cursorPaw.classList.add('clicking'));
+document.addEventListener('mouseup',   () => cursorPaw.classList.remove('clicking'));
 
 // Cursor states: dark / inverted (on dark sections)
 function setCursorInverted(yes) {
-  dot.classList.toggle('inv', yes);
-  ring.classList.toggle('inv', yes);
+  cursorPaw.classList.toggle('inv', yes);
 }
 
 // Hover expand on interactive elements
 document.querySelectorAll('a, button, input, textarea').forEach(el => {
-  el.addEventListener('mouseenter', () => { dot.classList.add('big'); ring.classList.add('big'); });
-  el.addEventListener('mouseleave', () => { dot.classList.remove('big'); ring.classList.remove('big'); });
+  el.addEventListener('mouseenter', () => cursorPaw.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursorPaw.classList.remove('big'));
 });
 
 // ── Scroll progress bar ──
@@ -447,270 +410,230 @@ document.querySelectorAll('[data-nav]').forEach(link => {
   });
 });
 
-// ══════════════════════════════════════
-//  FLUID S  —  Canvas 2D
-//  Architecture:
-//  1. Draw warm content preview (everywhere)
-//  2. White mask OUTSIDE the S blobs  [evenodd]
-//  3. Dark ink radial overlay INSIDE   [clip]
-//  Result: S blobs = dark windows into content
-// ══════════════════════════════════════
-(function initFluidS() {
-  const canvas = document.getElementById('s-main-canvas');
-  if (!canvas) return;
 
-  // ── Size setup ──────────────────────────────────────
-  const DPR  = Math.min(window.devicePixelRatio || 1, 2);
-  const wrapper = canvas.parentElement;
 
-  function getSize() {
-    return Math.min(560, wrapper.offsetWidth || 560);
-  }
-
-  let SIZE = getSize();
-  canvas.style.width  = '100%';
-  canvas.style.height = '100%';
-  canvas.width  = SIZE * DPR;
-  canvas.height = SIZE * DPR;
-
-  const ctx = canvas.getContext('2d');
-  ctx.scale(DPR, DPR);
-  let W = SIZE, H = SIZE, CX = W / 2, CY = H / 2;
-
-  // Resize handler
-  window.addEventListener('resize', () => {
-    const newSize = getSize();
-    if (Math.abs(newSize - SIZE) < 2) return;
-    SIZE = newSize;
-    W = SIZE; H = SIZE; CX = W / 2; CY = H / 2;
-    canvas.width  = SIZE * DPR;
-    canvas.height = SIZE * DPR;
-    ctx.scale(DPR, DPR);
-  });
-
-  let gx = -9999, gy = -9999;
-  let targetGyroX = 0, targetGyroY = 0;
-  let gyroX = 0, gyroY = 0;
-
-  document.addEventListener('mousemove', e => {
-    const hero  = document.getElementById('hero-pinned');
-    if (!hero) return;
-    const hr = hero.getBoundingClientRect();
-    const cr = canvas.getBoundingClientRect();
-    if (e.clientY >= hr.top && e.clientY <= hr.bottom) {
-      gx = (e.clientX - cr.left) * (SIZE / cr.width);
-      gy = (e.clientY - cr.top)  * (SIZE / cr.height);
-      targetGyroX = (gx - CX) * 0.15;
-      targetGyroY = (gy - CY) * 0.15;
-    } else {
-      targetGyroX = 0;
-      targetGyroY = 0;
-    }
-  });
-
-  // ── Organic noise (sum of sines) ─────────────────────
-  function oNoise(x, ph) {
-    ph = ph || 0;
-    return (
-      Math.sin(x * 1.0  + ph)               * 0.42 +
-      Math.sin(x * 2.3  + ph * 1.4 + 0.9)  * 0.27 +
-      Math.sin(x * 4.9  + ph * 0.7 + 1.8)  * 0.16 +
-      Math.sin(x * 10.1 + ph * 1.8 + 3.0)  * 0.09 +
-      Math.sin(x * 19.7 + ph * 0.5 + 4.2)  * 0.04 +
-      Math.sin(x * 37.3 + ph * 1.2 + 5.5)  * 0.02
-    );
-  }
-
-  // ── Blob point generation ─────────────────────────────
-  function makePts(cx, cy, r, n, ph, t, amp) {
-    const pts = [];
-    for (let i = 0; i < n; i++) {
-      const a  = (i / n) * Math.PI * 2;
-      const nr = r + oNoise(a * 1.55 + t * 0.48, ph) * r * amp;
-      pts.push([cx + nr * Math.cos(a), cy + nr * Math.sin(a)]);
-    }
-    return pts;
-  }
-
-  // ── Catmull-Rom path ─────────────────────────────────
-  function catmull(pts) {
-    const n = pts.length;
-    ctx.beginPath();
-    for (let i = 0; i < n; i++) {
-      const p0 = pts[(i - 1 + n) % n];
-      const p1 = pts[i];
-      const p2 = pts[(i + 1) % n];
-      const p3 = pts[(i + 2) % n];
-      const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
-      const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
-      const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
-      const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
-      i === 0 ? ctx.moveTo(p1[0], p1[1]) :
-                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2[0], p2[1]);
-    }
-    ctx.closePath();
-  }
-
-  // ── Content preview (drawn INSIDE S blobs) ───────────
-  function drawContent() {
-    // Warm paper gradient background
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0,   '#ddd6ca');
-    bg.addColorStop(0.5, '#d2cab8');
-    bg.addColorStop(1,   '#c8bfac');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Faint large "S" letterform ghost behind everything
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `italic ${W * 0.72}px DM Serif Display, serif`;
-    ctx.fillStyle = 'rgba(30,24,18, 0.06)';
-    ctx.fillText('S', CX + 4, CY + 8);
-    ctx.restore();
-
-    // Role / identity labels stacked
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const labels = [
-      { text: 'STUDENT',   y: CY - H * 0.18, size: W * 0.037, alpha: 0.48 },
-      { text: '·',         y: CY - H * 0.07, size: W * 0.028, alpha: 0.28 },
-      { text: 'DEVELOPER', y: CY + H * 0.01, size: W * 0.037, alpha: 0.42 },
-      { text: '·',         y: CY + H * 0.09, size: W * 0.028, alpha: 0.28 },
-      { text: 'LEARNER',   y: CY + H * 0.17, size: W * 0.037, alpha: 0.38 },
-    ];
-    labels.forEach(l => {
-      ctx.font = `700 ${l.size}px Inter, sans-serif`;
-      ctx.fillStyle = `rgba(28,22,16,${l.alpha})`;
-      ctx.fillText(l.text, CX, l.y);
-    });
-
-    // CGPA stat
-    ctx.font = `bold ${W * 0.14}px DM Serif Display, serif`;
-    ctx.fillStyle = 'rgba(28,22,16,0.18)';
-    ctx.fillText('9.77', CX, CY - H * 0.34);
-
-    ctx.font = `600 ${W * 0.026}px Inter, sans-serif`;
-    ctx.fillStyle = 'rgba(28,22,16,0.20)';
-    ctx.fillText('CGPA', CX, CY - H * 0.26);
-
-    ctx.restore();
-  }
-
-  // ── Main draw loop ────────────────────────────────────
-  let time = 0;
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-
-    const t   = time;
-    const R   = W * 0.265;  // blob radius
-    const NS  = 0.24;       // noise amplitude
-
-    gyroX += (targetGyroX - gyroX) * 0.05;
-    gyroY += (targetGyroY - gyroY) * 0.05;
-
-    // Top blob — upper-right (moves less, pushed back)
-    const tCX = CX + W * 0.092 + Math.sin(t * 0.19) * W * 0.020 + gyroX * 0.6;
-    const tCY = CY - H * 0.220 + Math.sin(t * 0.16 + 1) * H * 0.018 + gyroY * 0.6;
-
-    // Bottom blob — lower-left (moves more, closer to screen)
-    const bCX = CX - W * 0.092 + Math.sin(t * 0.19 + 3) * W * 0.020 + gyroX * 1.4;
-    const bCY = CY + H * 0.220 + Math.sin(t * 0.16 + 4) * H * 0.018 + gyroY * 1.4;
-
-    // Center bridge connector
-    const mCX = CX + Math.sin(t * 0.13) * W * 0.014 + gyroX;
-    const mCY = CY + Math.sin(t * 0.17 + 2) * H * 0.012 + gyroY;
-    const mR  = R * 0.41;
-
-    const tp = makePts(tCX, tCY, R,  46, 0, t, NS);
-    const bp = makePts(bCX, bCY, R,  46, 3, t, NS);
-    const mp = makePts(mCX, mCY, mR, 30, 6, t, NS * 0.72);
-
-    // ── STEP 1: Content preview (full canvas) ────────────
-    drawContent();
-
-    // ── STEP 2: White mask OUTSIDE blobs (evenodd rule) ──
-    // rect fills white; blobs punch through (transparent holes)
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, W, H);
-    catmull(tp);
-    catmull(bp);
-    catmull(mp);
-    ctx.fillStyle = '#f4f4f0'; // matches hero-pinned background
-    ctx.fill('evenodd');
-    ctx.restore();
-
-    // Radial gradient: lighter at center (content visible), very dark at rim
-    [[tp, tCX, tCY, R], [bp, bCX, bCY, R], [mp, mCX, mCY, mR]].forEach(([pts, cx, cy, r]) => {
-      ctx.save();
-      ctx.beginPath();
-      catmull(pts);
-      ctx.clip();
-
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.18);
-      g.addColorStop(0,    'rgba(8, 7,12, 0.52)');  // center — content shows through
-      g.addColorStop(0.38, 'rgba(6, 5,10, 0.72)');
-      g.addColorStop(0.72, 'rgba(3, 2, 7, 0.88)');
-      g.addColorStop(1,    'rgba(1, 0, 4, 0.97)');  // near-black edge
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.restore();
-    });
-
-    time += 0.010;
-    requestAnimationFrame(draw);
-  }
-
-  draw();
-})();
-
-// ══════════════════════════════════════
-//  HERO SCROLL  —  S scales out → content appears
-// ══════════════════════════════════════
+// ════════════════════════════════════
+//  HERO SCROLL  —  cat entrance (no more S zoom)
+// ════════════════════════════════════
 const heroWrapper = document.getElementById('hero-wrapper');
-const sWrapper    = document.getElementById('s-wrapper');
+const catWrapper  = document.getElementById('cat-wrapper');
 const heroTagline = document.getElementById('hero-tagline');
 const heroScroll  = document.getElementById('hero-scroll-hint');
 const siteNav     = document.getElementById('site-nav');
 
+// ── Hero entrance (triggered by preloader) ──
+window.playHeroEntrance = () => {
+  gsap.from(siteNav,      { y: -18, opacity: 0, duration: 0.9, delay: 0.10, ease: 'power3.out' });
+  gsap.from(heroTagline,  { y: 14,  opacity: 0, duration: 0.9, delay: 0.75, ease: 'power3.out' });
+  gsap.from(heroScroll,   { opacity: 0, duration: 0.9, delay: 1.05, ease: 'power2.out' });
+};
+
+// Nav stays visible — no hide/show needed with simple 100vh hero
+
+// ════════════════════════════════════
+//  CAT MASCOT — Eye Tracking
+// ════════════════════════════════════
+const catMascot  = document.getElementById('cat-mascot');
+if (catMascot) gsap.set(catMascot, { scaleX: -1 }); // Explicitly define flip for GSAP matrix math
+const pupilLeft  = document.getElementById('pupil-left');
+const pupilRight = document.getElementById('pupil-right');
+
+// Eye resting centers (in SVG coordinate space, viewBox 300x400)
+const EYE_L = { cx: 112, cy: 152, restX: 112, restY: 154 };
+const EYE_R = { cx: 188, cy: 152, restX: 188, restY: 154 };
+const MAX_TRAVEL = 9; // max pupil offset in SVG units
+
+let catRect = null;
+function refreshCatRect() {
+  if (catMascot) catRect = catMascot.getBoundingClientRect();
+}
+window.addEventListener('resize', refreshCatRect);
+requestAnimationFrame(refreshCatRect);
+
+document.addEventListener('mousemove', (e) => {
+  if (!catMascot || !catRect || catRect.width === 0) return;
+  const svgW = 300, svgH = 400;
+  const rawMx = (e.clientX - catRect.left) * (svgW / catRect.width);
+  const mx = svgW - rawMx; // Inverted because SVG has scaleX(-1)
+  const my = (e.clientY - catRect.top)  * (svgH / catRect.height);
+
+  [{ eye: EYE_L, pupil: pupilLeft }, { eye: EYE_R, pupil: pupilRight }].forEach(({ eye, pupil }) => {
+    if (!pupil) return;
+    const dx = mx - eye.cx, dy = my - eye.cy;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const t    = Math.min(1, MAX_TRAVEL / dist);
+    gsap.to(pupil, {
+      attr: { cx: eye.cx + dx * t, cy: eye.cy + dy * t },
+      duration: 0.22, ease: 'power2.out', overwrite: 'auto'
+    });
+  });
+});
+
+catMascot && catMascot.addEventListener('mouseleave', () => {
+  gsap.to(pupilLeft,  { attr: { cx: EYE_L.restX, cy: EYE_L.restY }, duration: 0.5, ease: 'elastic.out(1, 0.45)' });
+  gsap.to(pupilRight, { attr: { cx: EYE_R.restX, cy: EYE_R.restY }, duration: 0.5, ease: 'elastic.out(1, 0.45)' });
+});
+
+// ════════════════════════════════════
+//  CAT MASCOT — Whisker Hover Wiggle
+// ════════════════════════════════════
+['#whiskers-left','#whiskers-right'].forEach((sel, i) => {
+  const group = document.querySelector(sel);
+  if (!group) return;
+  let playing = false;
+  const origin = i === 0 ? '110 183' : '190 183';
+  const dir    = i === 0 ? -9 : 9;
+
+  group.addEventListener('mouseenter', () => {
+    if (playing) return;
+    playing = true;
+    const visibleWhiskers = group.querySelectorAll('.whisker');
+    gsap.timeline({ onComplete: () => (playing = false) })
+      .to(visibleWhiskers, { rotation: dir, svgOrigin: origin, stagger: 0.04, duration: 0.14, ease: 'power2.out' })
+      .to(visibleWhiskers, { rotation: 0,   svgOrigin: origin, stagger: 0.04, duration: 0.32, ease: 'elastic.out(1.4, 0.4)' });
+  });
+});
+
+// ════════════════════════════════════
+//  CAT MASCOT — Idle Animations
+// ════════════════════════════════════
+const blinkL = document.getElementById('blink-left');
+const blinkR = document.getElementById('blink-right');
+const earL   = document.getElementById('ear-left');
+const earR   = document.getElementById('ear-right');
+
+function doSlowBlink(cb) {
+  if (!blinkL) return cb && cb();
+  gsap.timeline({ onComplete: cb })
+    .to([blinkL, blinkR], { attr: { ry: 30 }, duration: 0.09, ease: 'power2.in',  stagger: 0.02 })
+    .to([blinkL, blinkR], { attr: { ry: 0  }, duration: 0.22, ease: 'power2.out', stagger: 0.02, delay: 0.06 });
+}
+
+function doDoubleBlink(cb) {
+  if (!blinkL) return cb && cb();
+  gsap.timeline({ onComplete: cb })
+    .to([blinkL, blinkR], { attr: { ry: 30 }, duration: 0.08, ease: 'power2.in' })
+    .to([blinkL, blinkR], { attr: { ry: 0  }, duration: 0.18, ease: 'power2.out', delay: 0.04 })
+    .to([blinkL, blinkR], { attr: { ry: 30 }, duration: 0.08, ease: 'power2.in',  delay: 0.14 })
+    .to([blinkL, blinkR], { attr: { ry: 0  }, duration: 0.20, ease: 'power2.out', delay: 0.04 });
+}
+
+function doEarTwitch(cb) {
+  const el = Math.random() > 0.5 ? earR : earL;
+  const ox = el === earR ? '224 96' : '64 96';
+  gsap.timeline({ onComplete: cb })
+    .to(el, { rotation: -10, svgOrigin: ox, duration: 0.10, ease: 'power1.out' })
+    .to(el, { rotation:   5, svgOrigin: ox, duration: 0.12 })
+    .to(el, { rotation:   0, svgOrigin: ox, duration: 0.32, ease: 'elastic.out(1.2, 0.4)' });
+}
+
+function doHeadTilt(cb) {
+  if (!catMascot) return cb && cb();
+  const dir = Math.random() > 0.5 ? 7 : -7;
+  gsap.timeline({ onComplete: cb })
+    .to(catMascot, { rotation: dir, svgOrigin: '150 200', duration: 0.55, ease: 'power2.inOut' })
+    .to(catMascot, { rotation: 0,   svgOrigin: '150 200', duration: 0.55, ease: 'power2.inOut', delay: 0.85 });
+}
+
+function doWhiskerIdle(cb) {
+  const i = Math.random() > 0.5 ? 0 : 1;
+  const sel = i === 0 ? '#whiskers-left' : '#whiskers-right';
+  const group = document.querySelector(sel);
+  if (!group) return cb && cb();
+  const ox  = i === 0 ? '110 183' : '190 183';
+  const dir = i === 0 ? -5 : 5;
+  const ws  = group.querySelectorAll('.whisker');
+  gsap.timeline({ onComplete: cb })
+    .to(ws, { rotation: dir, svgOrigin: ox, stagger: 0.05, duration: 0.15 })
+    .to(ws, { rotation: 0,  svgOrigin: ox, stagger: 0.05, duration: 0.30, ease: 'elastic.out(1.3, 0.4)' });
+}
+
+const idleAnims = [
+  doSlowBlink, doSlowBlink, doDoubleBlink,
+  doEarTwitch, doEarTwitch,
+  doHeadTilt,  doWhiskerIdle
+];
+
+function scheduleIdle() {
+  const delay = 5000 + Math.random() * 10000; // 5–15 s
+  setTimeout(() => {
+    const fn = idleAnims[Math.floor(Math.random() * idleAnims.length)];
+    fn(scheduleIdle);
+  }, delay);
+}
+setTimeout(scheduleIdle, 3200); // start after entrance settles
+
+// ════════════════════════════════════
+//  CAT MASCOT — Native Scroll Paw Zoom
+// ════════════════════════════════════
+const pawSwipe    = document.getElementById('paw-swipe');
+const catMascotEl = document.getElementById('cat-mascot');
+
+// Initialize GSAP transforms cleanly for scrub
+gsap.set(pawSwipe, { xPercent: -50, yPercent: -50, scale: 0 });
+
 const heroTL = gsap.timeline({
   scrollTrigger: {
     trigger: heroWrapper,
-    start:   'top top',
-    end:     'bottom bottom',
-    scrub:   1.5,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 1.5,
   }
 });
 
-// Phase 1 (0–30%): tagline + scroll hint fade out
-heroTL.to([heroTagline, heroScroll], {
-  opacity: 0, y: 14, duration: 0.3, ease: 'none',
-}, 0);
+// Phase 1 (0–20%): Fade out tagline, scroll hint, and slide cat down. Bring paw in.
+heroTL.fromTo([heroTagline, heroScroll], 
+  { opacity: 1, y: 0 },
+  { opacity: 0, y: 14, duration: 0.2, ease: 'none' }, 
+  0
+);
 
-// Phase 2 (0–100%): S scales massively, zooms out of viewport
-heroTL.to(sWrapper, {
-  scale:    52,
-  ease:     'power1.in',
-  duration: 1,
-}, 0);
+// Slide cat down to hide instead of fading
+heroTL.fromTo(catWrapper,
+  { yPercent: 0 },
+  { yPercent: 120, duration: 0.2, ease: 'power2.in' },
+  0
+);
 
-// Phase 3 (55–100%): nav fades on dark transition
+// Make the cat look sad (frown, half-closed droopy eyes, look down)
+heroTL.fromTo(document.getElementById('cat-mouth'),
+  { attr: { d: "M143,187 Q150,193 157,187" } },
+  { attr: { d: "M143,187 Q150,183 157,187" }, duration: 0.2, ease: 'none' },
+  0
+);
+heroTL.fromTo(document.getElementById('eyelid-left'),
+  { attr: { d: "M80,120 L144,120 L144,120 L80,120 Z" } },
+  { attr: { d: "M80,120 L144,120 L144,142 L80,158 Z" }, duration: 0.2, ease: 'none' },
+  0
+);
+heroTL.fromTo(document.getElementById('eyelid-right'),
+  { attr: { d: "M156,120 L220,120 L220,120 L156,120 Z" } },
+  { attr: { d: "M156,120 L220,120 L220,158 L156,142 Z" }, duration: 0.2, ease: 'none' },
+  0
+);
+heroTL.fromTo([pupilLeft, pupilRight],
+  { y: 0 },
+  { y: 6, duration: 0.2, ease: 'none' },
+  0
+);
+
+heroTL.fromTo(pawSwipe, 
+  { opacity: 0 },
+  { opacity: 1, duration: 0.2, ease: 'power2.out' }, 
+  0
+);
+
+// Phase 2 (20–100%): Paw scales massively, zooming into the center pad.
+heroTL.fromTo(pawSwipe, 
+  { scale: 0 },
+  { scale: 30, duration: 0.8, ease: 'power1.in' }, 
+  0.2
+);
+
+// Phase 3 (50-100%): Nav fade
 heroTL.to(siteNav, {
-  opacity: 0, duration: 0.4, ease: 'none',
-}, 0.55);
-
-// ── Hero entrance ──
-window.playHeroEntrance = () => {
-  gsap.from(siteNav,     { y: -18, opacity: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' });
-  gsap.from('#s-wrapper',{ scale: 0.88, opacity: 0, duration: 1.4, delay: 0.25, ease: 'power3.out', transformOrigin: 'center' });
-  gsap.from(heroTagline, { y: 14, opacity: 0, duration: 0.9, delay: 0.6, ease: 'power3.out' });
-  gsap.from(heroScroll,  { opacity: 0, duration: 0.9, delay: 0.9, ease: 'power2.out' });
-};
+  opacity: 0, duration: 0.5, ease: 'none'
+}, 0.5);
 
 // ── Nav re-appear on scroll past hero ──
 ScrollTrigger.create({
@@ -720,6 +643,27 @@ ScrollTrigger.create({
   onLeaveBack: () => gsap.to(siteNav, { opacity: 0, duration: 0.3 }),
 });
 
+// ════════════════════════════════════
+//  SITE-WIDE CAT GLIMPSES
+// ════════════════════════════════════
+
+// Cert cat peeps in, meows, then retreats
+const certCat = document.getElementById('cert-cat-peek');
+const meowText = document.getElementById('meow-text');
+if (certCat && meowText) {
+  ScrollTrigger.create({
+    trigger: '.certs-section',
+    start: 'top 55%',
+    once: true,
+    onEnter: () => {
+      gsap.timeline()
+        .to(certCat, { x: -120, duration: 0.6, ease: 'back.out(1.2)' })
+        .to(meowText, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, '+=0.2')
+        .to(meowText, { opacity: 0, scale: 0.5, duration: 0.2 }, '+=5') // Stays for 5 seconds
+        .to(certCat, { x: 0, duration: 0.5, ease: 'power2.in' }, '+=0.1');
+    }
+  });
+}
 // ══════════════════════════════════════
 //  WORK GRID  —  staggered scroll-in
 // ══════════════════════════════════════
